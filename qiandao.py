@@ -1,5 +1,3 @@
-# 仅支持只需要定位信息的打卡
-
 import json
 import sys
 
