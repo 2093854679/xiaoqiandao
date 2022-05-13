@@ -1,5 +1,4 @@
 # 仅支持只需要定位信息的打卡
-# 尚未完成
 
 import json
 import sys
@@ -76,8 +75,6 @@ def getcid(cid):
     return val, lat, lon
 
 
-# 最后这一步虽然返回的状态码是200，但是签到打卡并没有成功
-# 因此脚本没有完成
 def qiandao(cid, val, lat, lon):
     url = "https://api-xcx-qunsou.weiyoubot.cn/xcx/checkin/v3/doit"
 
@@ -92,11 +89,10 @@ def qiandao(cid, val, lat, lon):
         }]
     }
 
-    page = requests.post(url, headers=headers, data=data)
+    # data表单必须先处理成json数据后才能发送
+    page = requests.post(url, headers=headers, data=json.dumps(data))
 
-    print(page.text)
-
-    print(page.status_code)
+    print("\n" + page.text)
 
 
 cid = getlist()
