@@ -56,7 +56,7 @@ class xiaoqiandao():
         page = requests.get(url, headers=self.headers)
         dict_page = page.json()
 
-        print("\n要求的必填项有：")
+        print("\n检查必填项中")
 
         self.field_names = []
         fill_options = dict_page['data']['fill_options']
@@ -64,8 +64,12 @@ class xiaoqiandao():
             if fill_option['require']:
                 self.field_names.append(fill_option['field_name'])
 
-        for field_name in self.field_names:
-            print(field_name)
+        if not self.field_names:
+            print("无必填项")
+        else:
+            print("必填项有:")
+            for field_name in self.field_names:
+                print(field_name)
 
         if "地理位置" in self.field_names:
             self.val = dict_page['data']['locations'][0]['address']
@@ -74,7 +78,7 @@ class xiaoqiandao():
             self.lon = round(
                 float(dict_page['data']['locations'][0]['longitude']), 5)
 
-            print('\n', self.val, "\n", self.lat, '\n', self.lon)
+            print('\n将使用此地址签到:', self.val)
 
     def qiandao(self):
         url = "https://api-xcx-qunsou.weiyoubot.cn/xcx/checkin/v3/doit"
@@ -100,9 +104,14 @@ class xiaoqiandao():
                 "access_token": self.access_token
             }
 
+        print("\n开始签到")
         # data表单必须先处理成json数据后才能发送
         page = requests.post(url, headers=self.headers, data=json.dumps(data))
-        print("\n" + page.text)
+
+        if page.json()['msg'] == 'ok':
+            print("签到成功")
+
+        print("\n服务器返回的信息:", page.text)
 
 
 if __name__ == "__main__":
