@@ -4,14 +4,11 @@ import sys
 import requests
 
 
-class xiaoqiandao():
-
+class xiaoqiandao:
     def __init__(self):
         self.headers = {
-            "User-Agent":
-            "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36 MicroMessenger/7.0.9.501 NetType/WIFI MiniProgramEnv/Windows WindowsWechat",
-            "Referer":
-            "https://servicewechat.com/wxee55405953922c86/622/page-frame.html"
+            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36 MicroMessenger/7.0.9.501 NetType/WIFI MiniProgramEnv/Windows WindowsWechat",
+            "Referer": "https://servicewechat.com/wxee55405953922c86/622/page-frame.html",
         }
         self.access_token = input("请输入token:")
 
@@ -27,7 +24,7 @@ class xiaoqiandao():
         dict_page = page.json()
 
         try:
-            datas = dict_page['data']
+            datas = dict_page["data"]
         except:
             sys.exit(str(dict_page))
 
@@ -36,9 +33,9 @@ class xiaoqiandao():
         id = 0
         checkins = []
         for data in datas:
-            title = data['title']
-            cid = data['cid']
-            owner = data['owner']
+            title = data["title"]
+            cid = data["cid"]
+            owner = data["owner"]
 
             checkin = {"id": id, "title": title, "owner": owner, "cid": cid}
             checkins.append(checkin)
@@ -59,10 +56,10 @@ class xiaoqiandao():
         print("\n检查必填项中")
 
         self.field_names = []
-        fill_options = dict_page['data']['fill_options']
+        fill_options = dict_page["data"]["fill_options"]
         for fill_option in fill_options:
-            if fill_option['require']:
-                self.field_names.append(fill_option['field_name'])
+            if fill_option["require"]:
+                self.field_names.append(fill_option["field_name"])
 
         if not self.field_names:
             print("无必填项")
@@ -72,43 +69,36 @@ class xiaoqiandao():
                 print(field_name)
 
         if "地理位置" in self.field_names:
-            self.val = dict_page['data']['locations'][0]['address']
-            self.lat = round(
-                float(dict_page['data']['locations'][0]['latitude']), 5)
-            self.lon = round(
-                float(dict_page['data']['locations'][0]['longitude']), 5)
+            self.val = dict_page["data"]["locations"][0]["address"]
+            self.lat = round(float(dict_page["data"]["locations"][0]["latitude"]), 5)
+            self.lon = round(float(dict_page["data"]["locations"][0]["longitude"]), 5)
 
-            print('\n将使用此地址签到:', self.val)
+            print("\n将使用此地址签到:", self.val)
 
     def qiandao(self):
         url = "https://api-xcx-qunsou.weiyoubot.cn/xcx/checkin/v3/doit"
 
         if "地理位置" in self.field_names:
             data = {
-                "cid":
-                self.cid,
-                "access_token":
-                self.access_token,
-                "fill_params": [{
-                    "key": 6,
-                    "val": self.val,
-                    "lat": self.lat,
-                    "lon": self.lon
-                }]
+                "cid": self.cid,
+                "access_token": self.access_token,
+                "fill_params": [
+                    {"key": 6, "val": self.val, "lat": self.lat, "lon": self.lon}
+                ],
             }
         else:
             data = {
                 "cid": self.cid,
                 "longitude": 0,
                 "latitude": 0,
-                "access_token": self.access_token
+                "access_token": self.access_token,
             }
 
         print("\n开始签到")
         # data表单必须先处理成json数据后才能发送
         page = requests.post(url, headers=self.headers, data=json.dumps(data))
 
-        if page.json()['msg'] == 'ok':
+        if page.json()["msg"] == "ok":
             print("签到成功")
 
         print("\n服务器返回的信息:", page.text)
