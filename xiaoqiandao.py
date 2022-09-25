@@ -1,5 +1,4 @@
 import json
-import sys
 
 import requests
 
@@ -23,12 +22,7 @@ class xiaoqiandao:
         page = requests.get(url, headers=self.headers)
         dict_page = page.json()
 
-        try:
-            datas = dict_page["data"]
-        except:
-            sys.exit(str(dict_page))
-
-        print("")
+        datas = dict_page["data"]
 
         id = 0
         checkins = []
