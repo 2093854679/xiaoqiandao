@@ -1,55 +1,66 @@
+"""仅用做学术交流使用"""
 import json
 
 import requests
 
 
-class xiaoqiandao:
+class Xiaoqiandao:
+    """小小签到定位打卡"""
+
     def __init__(self):
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36 MicroMessenger/7.0.9.501 NetType/WIFI MiniProgramEnv/Windows WindowsWechat",
+            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 \
+(KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36 MicroMessenger/7.0.9.501 \
+NetType/WIFI MiniProgramEnv/Windows WindowsWechat",
             "Referer": "https://servicewechat.com/wxee55405953922c86/622/page-frame.html",
         }
         self.access_token = input("请输入token:")
+        self.cid = str()
+        self.val = str()
+        self.lat = float()
+        self.lon = float()
+        self.field_names = []
 
     def __call__(self):
         self.getlist()
         self.getcid()
         self.qiandao()
 
-    # 获取打卡列表
     def getlist(self):
-        url = f"https://api-xcx-qunsou.weiyoubot.cn/xcx/checkin/v3/list?type=5&page=1&count=10&access_token={self.access_token}&tag=0&keyword="
-        page = requests.get(url, headers=self.headers)
+        """获取打卡列表"""
+        url = f"https://api-xcx-qunsou.weiyoubot.cn/xcx/checkin/v3/\
+list?type=5&page=1&count=10&access_token={self.access_token}&tag=0&keyword="
+        page = requests.get(url, headers=self.headers, timeout=5)
         dict_page = page.json()
 
         datas = dict_page["data"]
 
-        id = 0
+        check_id = 0
         checkins = []
         for data in datas:
             title = data["title"]
             cid = data["cid"]
             owner = data["owner"]
 
-            checkin = {"id": id, "title": title, "owner": owner, "cid": cid}
+            checkin = {"id": check_id, "title": title, "owner": owner, "cid": cid}
             checkins.append(checkin)
             print(checkin)
 
-            id += 1
+            check_id += 1
 
-        id = input("请输入对应的id:")
+        check_id = input("请输入对应的id:")
 
-        self.cid = checkins[int(id)]["cid"]
+        self.cid = checkins[int(check_id)]["cid"]
 
-    # 获取打卡指定的位置信息
     def getcid(self):
-        url = f"https://api-xcx-qunsou.weiyoubot.cn/xcx/checkin/v4/detail?cid={self.cid}&access_token={self.access_token}&tag=0&random_num=0.9361229083976608"
-        page = requests.get(url, headers=self.headers)
+        """获取打卡指定的位置信息"""
+        url = f"https://api-xcx-qunsou.weiyoubot.cn/xcx/checkin/v4/\
+detail?cid={self.cid}&access_token={self.access_token}&tag=0&random_num=0.9361229083976608"
+        page = requests.get(url, headers=self.headers, timeout=5)
         dict_page = page.json()
 
         print("\n检查必填项中")
 
-        self.field_names = []
         fill_options = dict_page["data"]["fill_options"]
         for fill_option in fill_options:
             if fill_option["require"]:
@@ -70,6 +81,7 @@ class xiaoqiandao:
             print("\n将使用此地址签到:", self.val)
 
     def qiandao(self):
+        """签到"""
         url = "https://api-xcx-qunsou.weiyoubot.cn/xcx/checkin/v3/doit"
 
         if "地理位置" in self.field_names:
@@ -90,7 +102,9 @@ class xiaoqiandao:
 
         print("\n开始签到")
         # data表单必须先处理成json数据后才能发送
-        page = requests.post(url, headers=self.headers, data=json.dumps(data))
+        page = requests.post(
+            url, headers=self.headers, data=json.dumps(data), timeout=5
+        )
 
         if page.json()["msg"] == "ok":
             print("签到成功")
@@ -99,5 +113,5 @@ class xiaoqiandao:
 
 
 if __name__ == "__main__":
-    xia = xiaoqiandao()
+    xia = Xiaoqiandao()
     xia()
